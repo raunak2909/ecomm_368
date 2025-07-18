@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:ecomm_368/data/remote/helper/app_exception.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../utils/constants/app_constants.dart';
 
 class ApiHelper {
   ///get
@@ -19,18 +22,21 @@ class ApiHelper {
       mHeader ??= {};
 
       String token = "";
-
       ///get user token from prefs
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      token = prefs.getString(AppConstants.prefUserToken) ?? "";
+
       mHeader["Authorization"] = "Bearer $token";
     }
 
     try {
       var res = await http.post(
         Uri.parse(url),
-        body: mBodyParams,
+        body: jsonEncode(mBodyParams),
         headers: mHeader,
       );
-      handleResponse(res);
+      print(res.body);
+      return handleResponse(res);
     } on SocketException {
       throw (NetworkException(message: "No Internet Connection"));
     } catch (e) {

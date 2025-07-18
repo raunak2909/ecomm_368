@@ -1,4 +1,8 @@
+import 'package:ecomm_368/ui/sign_up/bloc/user_bloc.dart';
+import 'package:ecomm_368/ui/sign_up/bloc/user_event.dart';
+import 'package:ecomm_368/ui/sign_up/bloc/user_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../login/login_page.dart';
 
@@ -9,7 +13,12 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   bool showPass = true;
-  bool check=false;
+  bool check = false;
+  bool isLoading = false;
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController mobNoController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +54,7 @@ class _SignupScreenState extends State<SignupScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: TextField(
+                  controller: nameController,
                   style: style.bodySmall!.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
@@ -72,6 +82,7 @@ class _SignupScreenState extends State<SignupScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: TextField(
+                  controller: mobNoController,
                   style: style.bodySmall!.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
@@ -99,6 +110,7 @@ class _SignupScreenState extends State<SignupScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: TextField(
+                  controller: emailController,
                   style: style.bodySmall!.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
@@ -126,6 +138,7 @@ class _SignupScreenState extends State<SignupScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: TextField(
+                  controller: passwordController,
                   obscureText: showPass,
                   style: style.bodySmall!.copyWith(
                     fontSize: 18,
@@ -163,50 +176,101 @@ class _SignupScreenState extends State<SignupScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Checkbox(value: check,
-                  fillColor: WidgetStateProperty.resolveWith((states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return Colors.blueAccent;
-                    }
-                  }),
-                      onChanged: (value){
-                    check = value??false;
-                    setState(() {
-                    });
-                  }),
-                  Text("I agree to the",style: style.bodyMedium,),
+                  Checkbox(
+                    value: check,
+                    fillColor: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return Colors.blueAccent;
+                      }
+                    }),
+                    onChanged: (value) {
+                      check = value ?? false;
+                      setState(() {});
+                    },
+                  ),
+                  Text("I agree to the", style: style.bodyMedium),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen(),));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignupScreen()),
+                      );
                     },
                     child: Text(
                       "Terms",
-                      style: style.bodyMedium!.copyWith(color: Color(0xff1E88E5)),
+                      style: style.bodyMedium!.copyWith(
+                        color: Color(0xff1E88E5),
+                      ),
                     ),
                   ),
-                  Text("and",style: style.bodyMedium,),
+                  Text("and", style: style.bodyMedium),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => SignupScreen(),));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignupScreen()),
+                      );
                     },
                     child: Text(
                       "Privacy Policy",
-                      style: style.bodyMedium!.copyWith(color: Color(0xff1E88E5)),
+                      style: style.bodyMedium!.copyWith(
+                        color: Color(0xff1E88E5),
+                      ),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 18),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xff1E88E5),
-                  minimumSize: Size(350, 55),
-                ),
-                child: Text(
-                  "Signup",
-                  style: style.labelLarge!.copyWith(fontSize: 20),
-                ),
+              BlocConsumer<UserBloc, UserState>(
+                listener: (context, state) {
+                  if (state is UserLoadingState) {
+                    isLoading = true;
+                  }
+
+                  if (state is UserSuccessState) {
+                    isLoading = false;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Registered Successfully!!"), backgroundColor: Colors.green,),
+                    );
+                    Navigator.pop(context);
+                  }
+
+                  if(state is UserFailureState){
+                    isLoading = false;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.errorMsg), backgroundColor: Colors.red,),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      context.read<UserBloc>().add(
+                        UserRegisterEvent(
+                          name: nameController.text,
+                          email: emailController.text,
+                          mobNo: mobNoController.text,
+                          pass: passwordController.text,
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xff1E88E5),
+                      minimumSize: Size(350, 55),
+                    ),
+                    child: isLoading ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: Colors.white,),
+                        SizedBox(width: 11,),
+                        Text("Registering...", style: style.labelLarge!.copyWith(fontSize: 20),)
+                      ],
+                    ):Text(
+                      "Signup",
+                      style: style.labelLarge!.copyWith(fontSize: 20),
+                    ),
+                  );
+                },
               ),
               SizedBox(height: 18),
               Row(
@@ -219,7 +283,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                     child: Text(
                       "Login",
-                      style: style.bodyMedium!.copyWith(color: Color(0xff1E88E5)),
+                      style: style.bodyMedium!.copyWith(
+                        color: Color(0xff1E88E5),
+                      ),
                     ),
                   ),
                 ],

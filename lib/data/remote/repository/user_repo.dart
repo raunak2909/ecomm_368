@@ -5,14 +5,16 @@ class UserRepository {
   ApiHelper apiHelper;
   UserRepository({required this.apiHelper});
 
-  Future<bool> loginUser({required String email, required String pass}) async{
+  Future<dynamic> loginUser({required String email, required String pass}) async{
 
     try{
-      dynamic res = await apiHelper.postApi(url: AppUrls.login, isAuth: true, mBodyParams: {
+      dynamic res = await apiHelper.postApi(
+          url: AppUrls.login, isAuth: true,
+          mBodyParams: {
         "email":email,
         "password":pass
       });
-      return res["status"];
+      return res;
     } catch(e){
       rethrow;
     }
@@ -21,7 +23,7 @@ class UserRepository {
 
   }
 
-  Future<bool> signUpUser({
+  Future<dynamic> signUpUser({
     required String name,
     required String mobNo,
     required String email,
@@ -35,7 +37,7 @@ class UserRepository {
         "mobile_number": mobNo,
         "password": pass
       });
-      return res["status"];
+      return res;
     } catch(e){
       rethrow;
     }

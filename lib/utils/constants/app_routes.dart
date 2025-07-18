@@ -16,7 +16,7 @@ class AppRoutes {
     splash : (_) => SplashScreen(),
     login : (_) => LoginScreen(),
     signUp : (_) => SignupScreen(),
-    dashboard : (_) => DashBoardScreen(),
+    dashboard : (_) => DashboardPage(),
   };
 
 }

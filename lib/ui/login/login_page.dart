@@ -1,11 +1,18 @@
-
+import 'package:ecomm_368/ui/sign_up/bloc/user_event.dart';
 import 'package:ecomm_368/utils/constants/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../dashboard/dashboard_page.dart';
+import '../sign_up/bloc/user_bloc.dart';
+import '../sign_up/bloc/user_state.dart';
 import '../sign_up/signup_page.dart';
 
 class LoginScreen extends StatelessWidget {
+  bool isLoading = false;
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     bool isDark = Theme.of(context).brightness == Brightness.dark;
@@ -24,7 +31,9 @@ class LoginScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
           child: Column(
             children: [
               Image.asset("assets/images/login_image.png", scale: 2),
@@ -33,6 +42,7 @@ class LoginScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: TextField(
+                  controller: emailController,
                   style: style.bodySmall!.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
@@ -60,6 +70,7 @@ class LoginScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: TextField(
+                  controller: passwordController,
                   style: style.bodySmall!.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
@@ -94,18 +105,60 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 18),
-              ElevatedButton(
-                onPressed: () {
+              BlocConsumer<UserBloc, UserState>(
+                listener: (_, state) {
+                  if (state is UserLoadingState) {
+                    isLoading = true;
+                  }
 
+                  if (state is UserSuccessState) {
+                    isLoading = false;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Logged In Successfully!!"),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+                  }
+
+                  if (state is UserFailureState) {
+                    isLoading = false;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.errorMsg),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xff1E88E5),
-                  minimumSize: Size(350, 55),
-                ),
-                child: Text(
-                  "Login",
-                  style: style.labelLarge!.copyWith(fontSize: 20),
-                ),
+                builder: (context, state) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      context.read<UserBloc>().add(
+                        UserLoginEvent(
+                          email: emailController.text,
+                          pass: passwordController.text,
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xff1E88E5),
+                      minimumSize: Size(350, 55),
+                    ),
+                    child: isLoading ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: Colors.white,),
+                        SizedBox(width: 11,),
+                        Text("Logging In...", style: style.labelLarge!.copyWith(fontSize: 20),)
+                      ],
+                    ) : Text(
+                      "Login",
+                      style: style.labelLarge!.copyWith(fontSize: 20),
+                    ),
+                  );
+                },
               ),
               SizedBox(height: 28),
               Row(
@@ -132,33 +185,33 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                      child: Image.asset(
-                        "assets/images/icons/google_ic.png",
-                        scale: 6,
-                      ),
+                    height: 60,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
                     ),
+                    child: Image.asset(
+                      "assets/images/icons/google_ic.png",
+                      scale: 6,
+                    ),
+                  ),
                   SizedBox(width: 45),
                   Container(
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                      child: Align(
-                        alignment: Alignment(0, -0.3),
-                        child: Image.asset(
-                          "assets/images/icons/apple_ic.png",
-                          scale: 13,
-                        ),
+                    height: 60,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: Align(
+                      alignment: Alignment(0, -0.3),
+                      child: Image.asset(
+                        "assets/images/icons/apple_ic.png",
+                        scale: 13,
                       ),
                     ),
+                  ),
                 ],
               ),
               SizedBox(height: 18),
@@ -172,7 +225,9 @@ class LoginScreen extends StatelessWidget {
                     },
                     child: Text(
                       "Signup",
-                      style: style.bodyMedium!.copyWith(color: Color(0xff1E88E5)),
+                      style: style.bodyMedium!.copyWith(
+                        color: Color(0xff1E88E5),
+                      ),
                     ),
                   ),
                 ],
