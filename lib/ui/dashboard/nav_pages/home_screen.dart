@@ -1,6 +1,12 @@
 
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:dots_indicator/dots_indicator.dart';
+import 'package:ecomm_368/data/remote/models/product_model.dart';
 import 'package:ecomm_368/ui/product_detail/bloc/product_bloc.dart';
 import 'package:ecomm_368/ui/product_detail/bloc/product_event.dart';
+import 'package:ecomm_368/ui/product_detail/bloc/product_state.dart';
+import 'package:ecomm_368/ui/product_detail/detailed_screen.dart';
+import 'package:ecomm_368/utils/constants/app_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -182,6 +188,64 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               SizedBox(height: 20),
+
+              Stack(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 200,
+                    child: CarouselSlider.builder(
+                        itemCount: banners.length, itemBuilder: (_, index, realIdx) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        width: double.infinity,
+                          height: 200,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                              child: Image.asset(banners[index],fit: BoxFit.cover,)));
+                    }, options: CarouselOptions(
+                      onPageChanged: (index, __){
+                        _currentBanner = index;
+                        setState(() {
+
+                        });
+                      },
+                      //enlargeFactor: 2,
+                      //enlargeCenterPage: true,
+                      autoPlay: true,
+                      autoPlayInterval: Duration(seconds: 2),
+                      viewportFraction: 1
+                    )),
+                  ),
+                  Positioned(
+                    bottom: 7,
+                    left: 0,
+                    right: 0,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: DotsIndicator(
+                        dotsCount: banners.length,
+                        animate: true,
+                        position: _currentBanner.toDouble(),
+                        decorator: DotsDecorator(
+                          spacing: EdgeInsets.all(2),
+                          activeColor: Colors.black,
+                          color: Colors.transparent,
+                          size: Size(8, 8),
+                          activeSize: Size(16, 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5), side: BorderSide(color: Colors.black)),
+                          activeShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                        ),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+
+
+
               /*CarouselSlider.builder(
                 itemCount: banners.length,
                 itemBuilder: (context, index, realIdx) {
@@ -216,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 */
               // Dots (below Carousel)
-              Row(
+              /*Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: banners.asMap().entries.map((entry) {
                   return GestureDetector(
@@ -237,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 }).toList(),
-              ),
+              ),*/
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -270,38 +334,40 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categoriesItems.length,
-                  itemBuilder: (_, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 15),
-                      child: Column(
-                        children: [
-                         CircleAvatar(
-                              radius: 40,
-                              backgroundColor: isDark?Color(0xff2C2C2C):Colors.white,
-                              backgroundImage: AssetImage(
-                                categoriesItems[index]["image"],
+                height: 160,
+                child: Center(
+                  child: ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categoriesItems.length,
+                    itemBuilder: (_, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 15),
+                        child: Column(
+                          children: [
+                           CircleAvatar(
+                                radius: 40,
+                                backgroundColor: isDark?Color(0xff2C2C2C):Colors.white,
+                                backgroundImage: AssetImage(
+                                  categoriesItems[index]["image"],
+                                ),
+                              ),
+                            SizedBox(height: 6),
+                            SizedBox(
+                              width: 80,
+                              child: Text(
+                                categoriesItems[index]['name'],
+                                style: style.bodyLarge,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
                               ),
                             ),
-                          SizedBox(height: 6),
-                          SizedBox(
-                            width: 80,
-                            child: Text(
-                              categoriesItems[index]['name'],
-                              style: style.bodyLarge,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
               Row(
@@ -335,122 +401,150 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               SizedBox(height: 10),
-              GridView.builder(
-                padding: EdgeInsets.only(
-                  top: 10,
-                  left: 20,
-                  right: 20,
-                  bottom: 110,
-                ),
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 250,
-                  childAspectRatio: 9 / 10,
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 20,
-                ),
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: 5,
-                itemBuilder: (_, index) {
-                  return Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color:isDark?Color(0xff2C2C2C): Colors.white,
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            top: 0,
-                            left: 10,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(height: 10),
-                                Hero(
-                                  tag: products[index]["id"].toString(),
-                                  child: SizedBox(
-                                    height: 100,
-                                    width: 100,
-                                    child: Image.network(
-                                      products[index]["image"],
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 160,
-                                  child: Text(
-                                    products[index]["Name"],
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: style.bodyMedium!.copyWith(fontWeight: FontWeight.w500)
-                                  ),
-                                ),
-                                SizedBox(height: 5),
-                                Text(
-                                  "₹${products[index]["price"]}",
-                                  style: style.titleLarge!.copyWith(fontSize: 18)
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      "M.R.P:",
-                                      style: style.bodySmall
-                                    ),
-                                    Text(
-                                      "₹${products[index]["mrp"]}",
+              BlocBuilder<ProductBloc, ProductState>(builder: (_, state){
+                if(state is ProductLoadingState){
+                  return Center(child: CircularProgressIndicator());
+                }
 
-                                      style: style.bodySmall
+                if(state is ProductErrorState){
+                  return Center(child: Text(state.errorMsg));
+                }
+
+                if(state is ProductLoadedState){
+                  return GridView.builder(
+                    padding: EdgeInsets.only(
+                      top: 10,
+                      left: 20,
+                      right: 20,
+                      bottom: 110,
+                    ),
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 250,
+                      childAspectRatio: 9 / 10,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                    ),
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: state.mProducts.length,
+                    itemBuilder: (_, index) {
+
+                      ProductModel eachProduct = state.mProducts[index];
+
+                      return InkWell(
+                        onTap: (){
+                          //Navigator.pushNamed(context, AppRoutes.productDetail, arguments: eachProduct.toJson());
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetailedScreen(product: eachProduct),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color:isDark?Color(0xff2C2C2C): Colors.white,
+                          ),
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                top: 0,
+                                left: 10,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(height: 10),
+                                    Hero(
+                                      tag: eachProduct.id.toString(),
+                                      child: SizedBox(
+                                        height: 100,
+                                        width: 100,
+                                        child: Image.network(
+                                          eachProduct.image,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 160,
+                                      child: Text(
+                                          eachProduct.name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: style.bodyMedium!.copyWith(fontWeight: FontWeight.w500)
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+                                    Text(
+                                        "₹${eachProduct.price}",
+                                        style: style.titleLarge!.copyWith(fontSize: 18)
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                            "M.R.P:",
+                                            style: style.bodySmall
+                                        ),
+                                        Text(
+                                            "₹${eachProduct.price}",
+
+                                            style: style.bodySmall
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            top: 5,
-                            left: 10,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 5,
-                                vertical: 3,
                               ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.red,
-                              ),
-                              child: Text(
-                                "${products[index]["off"]}%off",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: "pop",
-                                  color: Colors.white,
+                              Positioned(
+                                top: 5,
+                                left: 10,
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 5,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.red,
+                                  ),
+                                  child: Text(
+                                    "0 %off",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: "pop",
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: Container(
-                              height: 45,
-                              width: 45,
-                              decoration: BoxDecoration(
-                                color: Color(0xff64B5F6),
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(20),
-                                  bottomLeft: Radius.circular(10),
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: Container(
+                                  height: 45,
+                                  width: 45,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xff64B5F6),
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(20),
+                                      bottomLeft: Radius.circular(10),
+                                    ),
+                                  ),
+                                   child: Icon(Icons.favorite_border, color: Colors.white,),
                                 ),
                               ),
-                             // child: LikeButton(),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      );
+                    },
                   );
-                },
-              ),
+                }
+
+                return Container();
+              })
             ],
           ),
         ),

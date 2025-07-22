@@ -1,9 +1,11 @@
+import 'package:ecomm_368/data/remote/models/product_model.dart';
+
 abstract class ProductState{}
 
 class ProductInitialState extends ProductState{}
 class ProductLoadingState extends ProductState{}
 class ProductLoadedState extends ProductState{
-  List<Map<String, dynamic>> mProducts;
+  List<ProductModel> mProducts;
   ProductLoadedState({required this.mProducts});
 }
 class ProductErrorState extends ProductState{

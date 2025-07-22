@@ -38,6 +38,8 @@ dependencies:
   http: ^1.4.0
   shared_preferences: ^2.5.3
   persistent_bottom_nav_bar: ^6.2.1
+  carousel_slider: ^5.1.1
+  dots_indicator: ^4.0.1
 
 dev_dependencies:
   flutter_test:
