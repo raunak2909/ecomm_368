@@ -9,7 +9,37 @@ import '../../../utils/constants/app_constants.dart';
 
 class ApiHelper {
   ///get
-  getApi() {}
+  getApi({
+    required String url,
+    Map<String, String>? mHeader,
+    bool isAuth = false,
+}) async{
+
+    if (!isAuth) {
+      mHeader ??= {};
+
+      String token = "";
+      ///get user token from prefs
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      token = prefs.getString(AppConstants.prefUserToken) ?? "";
+
+      mHeader["Authorization"] = "Bearer $token";
+    }
+
+    try {
+      var res = await http.get(
+        Uri.parse(url),
+        headers: mHeader,
+      );
+      print(res.body);
+      return handleResponse(res);
+    } on SocketException {
+      throw (NetworkException(message: "No Internet Connection"));
+    } catch (e) {
+      throw (ServerException(message: "Server Error: $e"));
+    }
+
+  }
 
   ///post
   Future<dynamic> postApi({

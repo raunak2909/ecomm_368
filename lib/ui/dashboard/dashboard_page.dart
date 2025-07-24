@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
-import 'nav_pages/home_screen.dart';
+import 'nav_pages/cart/cart_screen.dart';
+import 'nav_pages/home/home_screen.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -10,7 +11,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final List<Widget> _buildScreens = [HomeScreen(), HomeScreen(), HomeScreen()];
+  final List<Widget> _buildScreens = [HomeScreen(), HomeScreen(), HomeScreen(), CartScreen(), CartScreen()];
 
   int selectedIndex = 0;
 
@@ -65,7 +66,9 @@ class _DashboardPageState extends State<DashboardPage> {
           borderSide: BorderSide.none
         ),
         onPressed: (){
-
+          setState(() {
+            selectedIndex = 0;
+          });
       }, child: Icon(CupertinoIcons.home),),
       bottomNavigationBar: BottomAppBar(
         notchMargin: 5,
@@ -89,7 +92,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             IconButton(onPressed: () {
               setState(() {
-                selectedIndex = 1;
+                selectedIndex = 3;
               });
             }, icon: Icon(CupertinoIcons.cart)),
             IconButton(onPressed: () {
